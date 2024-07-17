@@ -1,2 +1,2 @@
-# Little-Step
-I am going to design a CPU.And this time I will try to use github.
+# Little-Step   #小步   小步
+####这是一个存储暑期CPUdesign代码的地方
