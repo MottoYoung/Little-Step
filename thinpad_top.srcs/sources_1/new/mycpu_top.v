@@ -16,6 +16,7 @@ module mycpu_top(
 );
 
 wire EX_load_store;
+wire EX_br_taken;
 reg         reset;
 always @(posedge clk) reset <= ~resetn;
 //allow_in
@@ -81,7 +82,8 @@ ID_stage ID(
     .to_EX_inst_bl(to_EX_inst_bl),
     .fw_alu_result(fw_alu_result),
     .fw_mem_final_result(fw_mem_final_result),
-    .fw_WB_final_result(fw_WB_final_result)
+    .fw_WB_final_result(fw_WB_final_result),
+    .EX_br_taken(EX_br_taken)
 );
 
 EX_stage EX(
@@ -103,7 +105,8 @@ EX_stage EX(
     .EX_dest_reg(EX_dest_reg),
     .to_EX_inst_bl(to_EX_inst_bl),
     .fw_alu_result(fw_alu_result),
-    .EX_load_store(EX_load_store)
+    .EX_load_store(EX_load_store),
+    .EX_br_taken(EX_br_taken)
 );
 
 MEM_stage MEM(

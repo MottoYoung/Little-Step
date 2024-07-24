@@ -53,7 +53,7 @@ assign pre_if_ready_go=~EX_load_store || IF_pc<=32'h80000004;
 assign to_IF_valid=~reset && pre_if_ready_go;
 assign IF_ready_go=1'b1;
 assign IF_allow_in= !IF_valid||IF_ready_go && ID_allow_in;//IF is working all the time,so it could always go to ID
-assign IF_to_ID_valid = IF_valid && IF_ready_go && !IF_br_taken;
+assign IF_to_ID_valid = IF_valid && IF_ready_go&&!IF_br_taken;
 assign IF_ID_reg={IF_pc,IF_inst};
 
 //flow_control

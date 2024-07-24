@@ -17,10 +17,12 @@ module EX_stage(
     output wire EX_load,
     input wire to_EX_inst_bl,
     output wire [31:0] fw_alu_result,
-    output wire EX_load_store
+    output wire EX_load_store,
+    output wire EX_br_taken
 );
 
     reg EX_valid;
+    //wire EX_br_taken;
     wire EX_ready_go;
     reg delay_slot;
     reg EX_inst_bl;
@@ -43,8 +45,8 @@ module EX_stage(
     wire [31:0] alu_result;
     assign fw_alu_result=alu_result;
     assign EX_ready_go=1'b1;
-    assign EX_allow_in= !EX_valid || EX_ready_go&&MEM_allow_in;
-    assign EX_to_MEM_valid=EX_valid && EX_ready_go&&!delay_slot;
+    assign EX_allow_in= !EX_valid || (EX_ready_go&&MEM_allow_in);
+    assign EX_to_MEM_valid=EX_valid && EX_ready_go;
     assign EX_MEM_reg={
         EX_pc,//70:39
         EX_gr_we,//38:38
@@ -55,12 +57,13 @@ module EX_stage(
     //此处为将bne，beq调到ex进行判断代码，改的话注释掉即可
     reg EX_inst_beq;
     reg EX_inst_bne;
+    
     reg br_taken;//只是为了拼接，无实际作用
     reg [31:0] EX_br_target;
     
     assign EX_dest_reg=EX_dest&{5{EX_valid}};
-    assign EX_br_taken=(EX_inst_beq && alu_result==0 ||
-                        EX_inst_bne && alu_result!=0) && EX_valid;
+    assign EX_br_taken=((EX_inst_beq && alu_result==0) ||
+                        (EX_inst_bne && alu_result!=0)) && EX_valid;
     assign EX_br_reg={EX_br_taken,EX_br_target};
 
    
@@ -88,16 +91,9 @@ module EX_stage(
              EX_res_from_mem}<=ID_EX_reg;
              EX_inst_bl<=to_EX_inst_bl;
             {EX_inst_beq,EX_inst_bne,br_taken,EX_br_target}<=ID_br_reg;
-            if(EX_br_taken) begin
-                delay_slot<=1'b1;
-            end
-            else begin
-                delay_slot<=1'b0;
-            end
         end
     end
     assign EX_load = EX_res_from_mem;
-
     alu u_alu(
         .alu_src1(alu_src1),
         .alu_src2(alu_src2),

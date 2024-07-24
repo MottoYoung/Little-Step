@@ -182,7 +182,7 @@ always @ (*) begin
         cpu_inst_rdata_r <= ~sel_inst ? 32'b0 
                             : ~base_ram_oe_n_r ? base_ram_data
                             : 32'b0;
-        cpu_data_rdata_r <= sel_uart ? uart_rdata : ~sel_inst ? (~ext_ram_oe_n_r ? ext_ram_data : 32'b0) : (~base_ram_oe_n_r ? base_ram_data : 32'b0);
+        cpu_data_rdata_r <= sel_uart ? uart_rdata : sel_inst ? (~ext_ram_oe_n_r ? ext_ram_data : 32'b0) : (~base_ram_oe_n_r ? base_ram_data : 32'b0);
     end
 end
 assign cpu_inst_rdata = cpu_inst_rdata_r;

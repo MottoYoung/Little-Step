@@ -16,7 +16,8 @@ module ID_stage(
     output wire to_EX_inst_bl,
     input wire [31:0]fw_alu_result,
     input wire [31:0]fw_mem_final_result,
-    input wire [31:0]fw_WB_final_result
+    input wire [31:0]fw_WB_final_result,
+    input wire EX_br_taken
 );
 
 reg [31:0] ID_pc;
@@ -264,8 +265,8 @@ regfile u_regfile(
 //forward
 
 
-assign rj_value  = same_rj?(c21?fw_alu_result:(c22?fw_mem_final_result:fw_WB_final_result)):rf_rdata1;
-assign rkd_value = same_rd?(c11?fw_alu_result:(c12?fw_mem_final_result:fw_WB_final_result)):
+assign rj_value  = same_rj ?(c21?fw_alu_result:(c22?fw_mem_final_result:fw_WB_final_result)):rf_rdata1;
+assign rkd_value = same_rd ?(c11?fw_alu_result:(c12?fw_mem_final_result:fw_WB_final_result)):
                    (same_rk?(c31?fw_alu_result:(c32?fw_mem_final_result:fw_WB_final_result)):rf_rdata2);
 
 assign ID_EX_reg={
@@ -285,7 +286,7 @@ assign ID_EX_reg={
 
 assign ID_ready_go =~block;
 assign ID_allow_in=!ID_valid||ID_ready_go&&EX_allow_in;
-assign ID_to_EX_valid=ID_valid&&ID_ready_go&&!delay_slot;
+assign ID_to_EX_valid=ID_valid&&ID_ready_go&&!delay_slot&&!EX_br_taken;
 
 always@(posedge clk)begin
     if(reset)begin
