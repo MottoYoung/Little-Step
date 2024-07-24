@@ -3,11 +3,11 @@ module EX_stage(
     input wire        reset,
     input wire     MEM_allow_in,
     input wire     ID_to_EX_valid,
-    input wire [34:0] ID_br_reg,//此处为将bne，beq调到ex进行判断代码
-    input wire [151:0] ID_EX_reg,
+    input wire [35:0] ID_br_reg,//此处为将bne，beq调到ex进行判断代码
+    input wire [153:0] ID_EX_reg,
     output wire EX_allow_in,
     output wire EX_to_MEM_valid,
-    output wire  [70:0]EX_MEM_reg,
+    output wire  [71:0]EX_MEM_reg,
     output   [32:0]EX_br_reg,//此处为将bne，beq调到ex进行判断代码
     output wire  data_sram_en,
     output wire [3:0] data_sram_we,
@@ -39,6 +39,8 @@ module EX_stage(
     reg EX_src2_is_imm;
     reg EX_src2_is_4;
     reg EX_res_from_mem;
+    reg EX_ld_b;
+    reg EX_st_b;
     //alu_port
     wire [31:0] alu_src1;
     wire [31:0] alu_src2;
@@ -48,6 +50,7 @@ module EX_stage(
     assign EX_allow_in= !EX_valid || (EX_ready_go&&MEM_allow_in);
     assign EX_to_MEM_valid=EX_valid && EX_ready_go;
     assign EX_MEM_reg={
+        EX_ld_b,
         EX_pc,//70:39
         EX_gr_we,//38:38
         EX_dest,//37:33
@@ -57,13 +60,14 @@ module EX_stage(
     //此处为将bne，beq调到ex进行判断代码，改的话注释掉即可
     reg EX_inst_beq;
     reg EX_inst_bne;
-    
+    reg EX_inst_blt;
     reg br_taken;//只是为了拼接，无实际作用
     reg [31:0] EX_br_target;
     
     assign EX_dest_reg=EX_dest&{5{EX_valid}};
     assign EX_br_taken=((EX_inst_beq && alu_result==0) ||
-                        (EX_inst_bne && alu_result!=0)) && EX_valid;
+                        (EX_inst_bne && alu_result!=0) ||
+                        (EX_inst_blt && alu_result<0)) && EX_valid;
     assign EX_br_reg={EX_br_taken,EX_br_target};
 
    
@@ -77,7 +81,9 @@ module EX_stage(
         end
 
         if(ID_to_EX_valid && EX_allow_in) begin
-            {EX_pc,
+            {EX_st_b,
+             EX_ld_b,
+             EX_pc,
              EX_imm,
              EX_rj_value,
              EX_rkd_value,
@@ -90,7 +96,7 @@ module EX_stage(
              EX_src2_is_4,
              EX_res_from_mem}<=ID_EX_reg;
              EX_inst_bl<=to_EX_inst_bl;
-            {EX_inst_beq,EX_inst_bne,br_taken,EX_br_target}<=ID_br_reg;
+            {EX_inst_blt,EX_inst_beq,EX_inst_bne,br_taken,EX_br_target}<=ID_br_reg;
         end
     end
     assign EX_load = EX_res_from_mem;
@@ -106,5 +112,5 @@ module EX_stage(
     assign data_sram_en=EX_res_from_mem | EX_mem_we;
     assign data_sram_we=EX_mem_we &&EX_valid?4'b1111:4'b0000;
     assign data_sram_addr=alu_result;
-    assign data_sram_wdata=EX_rkd_value;
+    assign data_sram_wdata=EX_st_b?EX_rkd_value[7:0]:EX_rkd_value;
 endmodule

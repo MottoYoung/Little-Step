@@ -3,7 +3,7 @@ module IF_stage(
     input  wire        reset,
     //next_stage_ready
     input  wire       ID_allow_in,
-    input  wire       [34:0] ID_br_reg,//此处为将bne，beq调到ex进行判断代码
+    input  wire       [35:0] ID_br_reg,//此处为将bne，beq调到ex进行判断代码
     input  wire       [32:0] EX_br_reg,//此处为将bne，beq调到ex进行判断代码
     // inst sram interface
     output wire        inst_sram_en,
@@ -24,6 +24,7 @@ wire [31:0] ID_br_target;
 wire [31:0] EX_br_target;
 wire inst_beq;
 wire inst_bne;
+wire inst_blt;
 wire ID_br_taken;
 
 //variables definition
@@ -74,7 +75,7 @@ always @(posedge clk) begin
         IF_pc<=IF_nextpc;
     end
 end
-assign {inst_beq,inst_bne,ID_br_taken,ID_br_target}=ID_br_reg;
+assign {inst_blt,inst_beq,inst_bne,ID_br_taken,ID_br_target}=ID_br_reg;
 assign {EX_br_taken,EX_br_target}=EX_br_reg;
 assign IF_br_taken=ID_br_taken || EX_br_taken;
 assign IF_br_target=EX_br_taken?EX_br_target:ID_br_target;

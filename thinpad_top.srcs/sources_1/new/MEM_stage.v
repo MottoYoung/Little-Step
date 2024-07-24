@@ -2,7 +2,7 @@ module MEM_stage(
     input wire clk,
     input wire reset,
     input wire WB_allow_in,
-    input wire [70:0] EX_MEM_reg,
+    input wire [71:0] EX_MEM_reg,
     input wire EX_to_MEM_valid,
     input wire [31:0] data_sram_rdata,
     output wire MEM_to_WB_valid,
@@ -12,7 +12,7 @@ module MEM_stage(
     output wire [31:0] fw_mem_final_result
 );
 
-
+reg MEM_ld_b;
 reg [31:0] MEM_pc;
 reg MEM_gr_we;
 reg [4:0] MEM_dest;
@@ -35,6 +35,7 @@ always@(posedge clk) begin
         MEM_valid<=EX_to_MEM_valid;
     end
     if(EX_to_MEM_valid && MEM_allow_in) begin
+        MEM_ld_b<=EX_MEM_reg[71];
         MEM_pc<=EX_MEM_reg[70:39];
         MEM_gr_we<=EX_MEM_reg[38];
         MEM_dest<=EX_MEM_reg[37:33];
@@ -43,7 +44,7 @@ always@(posedge clk) begin
     end
 end
 assign fw_mem_final_result=MEM_final_result;
-assign MEM_result=data_sram_rdata;
+assign MEM_result=MEM_ld_b?{{24{data_sram_rdata[7]}},data_sram_rdata[7:0]}:data_sram_rdata;
 assign MEM_final_result=MEM_res_from_mem?MEM_result:MEM_alu_result;
 assign MEM_WB_reg={MEM_pc,//69:38
                    MEM_gr_we,//37
