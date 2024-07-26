@@ -20,7 +20,10 @@ reg [31:0] MEM_alu_result;
 reg MEM_res_from_mem;
 wire [31:0] MEM_result;
 wire [31:0] MEM_final_result;
-
+wire [31:0] ld_b_data_sram_rdata;
+wire [4:0]off;
+assign off={MEM_alu_result[1:0],3'b0};
+assign ld_b_data_sram_rdata=data_sram_rdata>>off;
 reg MEM_valid;
 wire MEM_ready_go;
 assign MEM_ready_go=1'b1;
@@ -44,7 +47,7 @@ always@(posedge clk) begin
     end
 end
 assign fw_mem_final_result=MEM_final_result;
-assign MEM_result=MEM_ld_b?{{24{data_sram_rdata[7]}},data_sram_rdata[7:0]}:data_sram_rdata;
+assign MEM_result=MEM_ld_b?{{24{ld_b_data_sram_rdata[7]}},ld_b_data_sram_rdata[7:0]}:data_sram_rdata;
 assign MEM_final_result=MEM_res_from_mem?MEM_result:MEM_alu_result;
 assign MEM_WB_reg={MEM_pc,//69:38
                    MEM_gr_we,//37

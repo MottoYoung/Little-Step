@@ -260,7 +260,7 @@ always @ (posedge clk_20M) begin
         cpu_data_avai <= 1'b0;
         state <= 4'd2;
     end
-    else if (cpu_data_addr == 32'h1fd003fc) begin
+    else if (cpu_data_addr == 32'hbfd003fc) begin
         base_ram_addr_r <= cpu_inst_addr[21:2];
         base_ram_be_n_r <= 4'b0;
         base_ram_ce_n_r <= ~cpu_inst_en;
@@ -282,7 +282,7 @@ always @ (posedge clk_20M) begin
         cpu_data_avai <= 1'b0;
         state <= 4'd3;
     end
-    else if (cpu_data_addr == 32'h1fd003f8 && cpu_data_en) begin        
+    else if (cpu_data_addr == 32'hbfd003f8 && cpu_data_en) begin        
         base_ram_addr_r <= cpu_inst_addr[21:2];
         base_ram_be_n_r <= 4'b0;
         base_ram_ce_n_r <= ~cpu_inst_en;
