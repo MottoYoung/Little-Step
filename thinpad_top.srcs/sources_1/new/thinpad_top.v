@@ -64,7 +64,7 @@ pll_example clock_gen
   .clk_in1(clk_50M),  // 外部时钟输入
   // Clock out ports
   .clk_out1(clk_10M), // 时钟输出1，频率在IP配置界面中设置
-  .clk_out2(clk_20M), // 时钟输出2，频率在IP配置界面中设置
+  .clk_out2(clk_20M), // 时钟输出2，频率在IP配置界面中设置(50_now)
   // Status and control signals
   .reset(reset_btn), // PLL复位输入
   .locked(locked)    // PLL锁定指示输出，"1"表示时钟稳定，
@@ -78,14 +78,7 @@ always@(posedge clk_10M or negedge locked) begin
     else        reset_of_clk10M <= 1'b0;
 end
 
-always@(posedge clk_10M or posedge reset_of_clk10M) begin
-    if(reset_of_clk10M)begin
-        // Your Code
-    end
-    else begin
-        // Your Code
-    end
-end
+
 
 
 
@@ -152,11 +145,27 @@ reg  [7:0] ext_uart_buffer, ext_uart_tx;
 wire ext_uart_ready, ext_uart_clear, ext_uart_busy;
 reg ext_uart_start, ext_uart_avai;
 
-
 reg cpu_data_avai;
 
 reg uart_read_flag;
 reg uart_write_flag;
+
+
+//FIFO
+wire TX_FIFO_wr_en;
+wire TX_FIFO_rd_en;
+wire TX_FIFO_empty;
+wire TX_FIFO_full;
+reg [7:0] TX_FIFO_data_in;
+wire [7:0] TX_FIFO_data_out;
+
+wire RX_FIFO_wr_en;
+wire RX_FIFO_rd_en;
+wire RX_FIFO_empty;
+wire RX_FIFO_full;
+reg [7:0] RX_FIFO_data_in;
+wire [7:0] RX_FIFO_data_out;
+
 
 assign base_ram_data = ~base_ram_we_n_r ? base_ram_data_r : 32'bz;
 assign ext_ram_data = ~ext_ram_we_n_r ? ext_ram_data_r : 32'bz;
@@ -187,10 +196,20 @@ always @ (*) begin
 end
 assign cpu_inst_rdata = cpu_inst_rdata_r;
 assign cpu_data_rdata = cpu_data_rdata_r;
-assign uart_rdata = sel_uart_flag ? {30'b0,ext_uart_avai,~ext_uart_busy} : {24'b0,ext_uart_buffer};
+assign uart_rdata = sel_uart_flag ? {30'b0,ext_uart_avai,~ext_uart_busy} : {24'b0,RX_FIFO_data_out};
+
+
+assign TX_FIFO_rd_en = ext_uart_start;
+assign TX_FIFO_wr_en = cpu_data_avai;
+
+
+assign RX_FIFO_wr_en=ext_uart_ready;
+assign RX_FIFO_rd_en=ext_uart_avai;
+
+assign ext_uart_clear = ext_uart_ready && (!RX_FIFO_full);
 
 reg [3:0] state;
- 
+
 
  // out 
 always @ (posedge clk_20M) begin
@@ -263,8 +282,8 @@ always @ (posedge clk_20M) begin
     else if (cpu_data_addr == 32'hbfd003fc) begin
         base_ram_addr_r <= cpu_inst_addr[21:2];
         base_ram_be_n_r <= 4'b0;
-        base_ram_ce_n_r <= ~cpu_inst_en;
-        base_ram_oe_n_r <= ~cpu_inst_en ;
+        base_ram_ce_n_r <= ~(cpu_inst_en);
+        base_ram_oe_n_r <= ~(cpu_inst_en);
         base_ram_we_n_r <= 1'b1;
         base_ram_data_r <= cpu_inst_wdata;
       
@@ -327,7 +346,18 @@ always @ (posedge clk_20M) begin
         state <= 4'd5;
     end
 end
-
+//RX_FIFO
+FIFO RX_FIFO(
+    .rst(reset_of_clk10M),
+    .wr_clk(clk_20M),
+    .rd_clk(clk_20M),
+    .wr_en(RX_FIFO_wr_en),
+    .rd_en(RX_FIFO_rd_en),
+    .din(ext_uart_rx),
+    .dout(RX_FIFO_data_out),
+    .empty(RX_FIFO_empty),
+    .full(RX_FIFO_full)
+);
 //uart
 async_receiver #(.ClkFrequency(50000000),.Baud(9600)) //接收模块,9600无检验位
     ext_uart_r(
@@ -338,37 +368,46 @@ async_receiver #(.ClkFrequency(50000000),.Baud(9600)) //接收模块,9600无检�
         .RxD_data(ext_uart_rx)             //接收到的一字节数据
     );
 
-assign ext_uart_clear = ext_uart_ready; //收到数据的同时，清除标志，因为数据已取到ext_uart_buffer中
-always @(posedge clk_20M) begin //接收数据到ext_uart_buffer
+always @(*) begin //接收数据到ext_uart_buffer
     if (reset_of_clk10M) begin
-        ext_uart_buffer <= 8'b0;
+        RX_FIFO_data_in <= 8'b0;
         ext_uart_avai <= 1'b0;
     end
     else if(ext_uart_ready)begin
-        ext_uart_buffer <= ext_uart_rx;
         ext_uart_avai <= 1'b1;
     end 
-    else if(cpu_data_addr == 32'h1fd003f8 && (cpu_data_en & ~(|cpu_data_we)) && ext_uart_avai)begin 
+    else if(cpu_data_addr == 32'hbfd003f8 && (cpu_data_en & ~(|cpu_data_we)) && ext_uart_avai)begin 
         ext_uart_avai <= 1'b0;
     end
 end
 
-always @(posedge clk_20M) begin //发送数据到ext_uart_buffer
-    if(!ext_uart_busy && cpu_data_avai)begin 
-        ext_uart_tx <= uart_wdata[7:0];
+always @(*) begin //发送数据到ext_uart_buffer
+    if(!ext_uart_busy && !TX_FIFO_empty)begin 
         ext_uart_start <= 1;
     end else begin 
         ext_uart_start <= 0;
     end
 end
+//TX_FIFO
+FIFO TX_FIFO(
+    .rst(reset_of_clk10M),
+    .wr_clk(clk_20M),
+    .rd_clk(clk_20M),
+    .wr_en(TX_FIFO_wr_en),
+    .rd_en(TX_FIFO_rd_en),
+    .din(uart_wdata[7:0]),
+    .dout(TX_FIFO_data_out),
+    .empty(TX_FIFO_empty),
+    .full(TX_FIFO_full)
+);
 
 async_transmitter #(.ClkFrequency(50000000),.Baud(9600)) //发送模块,9600无检验位
     ext_uart_t(
-        .clk(clk_50M),                  //外部时钟信号
+        .clk(clk_20M),                  //外部时钟信号
         .TxD(txd),                      //串行信号输出
         .TxD_busy(ext_uart_busy),       //发送器忙状态指示
         .TxD_start(ext_uart_start),    //开始发送信号
-        .TxD_data(ext_uart_tx)        //待发送的数据
+        .TxD_data(TX_FIFO_data_out)        //待发送的数据
     );
 
 endmodule
