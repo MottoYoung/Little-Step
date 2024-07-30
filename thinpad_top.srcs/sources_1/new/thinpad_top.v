@@ -359,7 +359,7 @@ FIFO RX_FIFO(
     .full(RX_FIFO_full)
 );
 //uart
-async_receiver #(.ClkFrequency(50000000),.Baud(9600)) //接收模块,9600无检验位
+async_receiver #(.ClkFrequency(40000000),.Baud(9600)) //接收模块,9600无检验位
     ext_uart_r(
         .clk(clk_20M),                       //外部时钟信号
         .RxD(rxd),                           //外部串行信号输入
@@ -401,7 +401,7 @@ FIFO TX_FIFO(
     .full(TX_FIFO_full)
 );
 
-async_transmitter #(.ClkFrequency(50000000),.Baud(9600)) //发送模块,9600无检验位
+async_transmitter #(.ClkFrequency(40000000),.Baud(9600)) //发送模块,9600无检验位
     ext_uart_t(
         .clk(clk_20M),                  //外部时钟信号
         .TxD(txd),                      //串行信号输出

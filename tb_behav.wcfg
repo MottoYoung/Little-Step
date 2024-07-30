@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="2414000fs"></ZoomStartTime>
-      <ZoomEndTime time="2649201fs"></ZoomEndTime>
-      <Cursor1Time time="2590600fs"></Cursor1Time>
+      <ZoomStartTime time="22970467fs"></ZoomStartTime>
+      <ZoomEndTime time="23207668fs"></ZoomEndTime>
+      <Cursor1Time time="23060000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="217"></NameColumnWidth>
-      <ValueColumnWidth column_width="135"></ValueColumnWidth>
+      <ValueColumnWidth column_width="125"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="92" />
+   <WVObjectSize size="106" />
    <wvobject fp_name="/tb/dut/reset_of_clk10M" type="logic">
       <obj_property name="ElementShortName">reset_of_clk10M</obj_property>
       <obj_property name="ObjectShortName">reset_of_clk10M</obj_property>
@@ -43,6 +43,26 @@
    <wvobject fp_name="/tb/reset_btn" type="logic">
       <obj_property name="ElementShortName">reset_btn</obj_property>
       <obj_property name="ObjectShortName">reset_btn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/u_mycpu/IF/old_inst" type="array">
+      <obj_property name="ElementShortName">old_inst[31:0]</obj_property>
+      <obj_property name="ObjectShortName">old_inst[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/u_mycpu/IF/IF_inst" type="array">
+      <obj_property name="ElementShortName">IF_inst[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IF_inst[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/u_mycpu/ID/ID_inst" type="array">
+      <obj_property name="ElementShortName">ID_inst[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_inst[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/u_mycpu/IF/pre_if_ready_go" type="logic">
+      <obj_property name="ElementShortName">pre_if_ready_go</obj_property>
+      <obj_property name="ObjectShortName">pre_if_ready_go</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/u_mycpu/IF/IF_nextpc" type="array">
+      <obj_property name="ElementShortName">IF_nextpc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IF_nextpc[31:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/dut/u_mycpu/IF/to_IF_valid" type="logic">
       <obj_property name="ElementShortName">to_IF_valid</obj_property>
@@ -83,6 +103,10 @@
    <wvobject fp_name="/tb/dut/u_mycpu/ID/delay_slot" type="logic">
       <obj_property name="ElementShortName">delay_slot</obj_property>
       <obj_property name="ObjectShortName">delay_slot</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/u_mycpu/IF/old_block" type="logic">
+      <obj_property name="ElementShortName">old_block</obj_property>
+      <obj_property name="ObjectShortName">old_block</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/dut/u_mycpu/ID/block" type="logic">
       <obj_property name="ElementShortName">block</obj_property>
@@ -387,5 +411,37 @@
    <wvobject fp_name="/tb/FLASH_INIT_FILE" type="array">
       <obj_property name="ElementShortName">FLASH_INIT_FILE[119:0]</obj_property>
       <obj_property name="ObjectShortName">FLASH_INIT_FILE[119:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/TX_FIFO/din" type="array">
+      <obj_property name="ElementShortName">din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/TX_FIFO/wr_en" type="logic">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/TX_FIFO/rd_en" type="logic">
+      <obj_property name="ElementShortName">rd_en</obj_property>
+      <obj_property name="ObjectShortName">rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/TX_FIFO/dout" type="array">
+      <obj_property name="ElementShortName">dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/ext_uart_t/TxD_start" type="logic">
+      <obj_property name="ElementShortName">TxD_start</obj_property>
+      <obj_property name="ObjectShortName">TxD_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/ext_uart_t/TxD_busy" type="logic">
+      <obj_property name="ElementShortName">TxD_busy</obj_property>
+      <obj_property name="ObjectShortName">TxD_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/ext_uart_t/TxD_state" type="array">
+      <obj_property name="ElementShortName">TxD_state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">TxD_state[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/ext_uart_t/TxD_data" type="array">
+      <obj_property name="ElementShortName">TxD_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">TxD_data[7:0]</obj_property>
    </wvobject>
 </wave_config>

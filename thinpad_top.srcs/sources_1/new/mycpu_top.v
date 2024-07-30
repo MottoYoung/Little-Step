@@ -42,6 +42,7 @@ wire [4:0] WB_dest_reg;
 wire [31:0] fw_alu_result;
 wire [31:0] fw_mem_final_result;
 wire [31:0] fw_WB_final_result;
+wire block;
 //valid
 wire IF_to_ID_valid;
 wire ID_to_EX_valid;
@@ -61,7 +62,9 @@ IF_stage IF(
     .inst_sram_rdata(inst_sram_rdata),
     .IF_to_ID_valid(IF_to_ID_valid),
     .IF_ID_reg(IF_ID_reg),
-    .EX_load_store(EX_load_store)
+    .EX_load_store(EX_load_store),
+    .ID_block(block)
+
 );
 
 ID_stage ID(
@@ -83,7 +86,8 @@ ID_stage ID(
     .fw_alu_result(fw_alu_result),
     .fw_mem_final_result(fw_mem_final_result),
     .fw_WB_final_result(fw_WB_final_result),
-    .EX_br_taken(EX_br_taken)
+    .EX_br_taken(EX_br_taken),
+    .ID_block(block)
 );
 
 EX_stage EX(

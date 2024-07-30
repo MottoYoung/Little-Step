@@ -17,7 +17,8 @@ module ID_stage(
     input wire [31:0]fw_alu_result,
     input wire [31:0]fw_mem_final_result,
     input wire [31:0]fw_WB_final_result,
-    input wire EX_br_taken
+    input wire EX_br_taken,
+    output wire ID_block
 );
 
 reg [31:0] ID_pc;
@@ -312,7 +313,7 @@ assign ID_EX_reg={
 assign ID_ready_go =~block;
 assign ID_allow_in=!ID_valid||ID_ready_go&&EX_allow_in;
 assign ID_to_EX_valid=ID_valid&&ID_ready_go&&!delay_slot&&!EX_br_taken;
-
+assign ID_block=block;
 always@(posedge clk)begin
     if(reset)begin
         ID_valid<=1'b0;
