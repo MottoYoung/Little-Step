@@ -31,7 +31,7 @@ module thinpad_top(
 
     //直连串口信号
     output wire txd,  //直连串口发送端
-    input  wire rxd,  //直连串口接收端 moni
+    //input  wire rxd,  //直连串口接收端 moni
 
     //Flash存储器信号，参考 JS28F640 芯片手册
     output wire [22:0]flash_a,      //Flash地址，a0仅在8bit模式有效，16bit模式无意义
@@ -140,7 +140,7 @@ reg sel_inst; // 1-inst 0-data for base_ram
 reg [31:0] uart_wdata;
 
 //直连串口接收发送演示，从直连串口收到的数据再发送出去
-wire [7:0] ext_uart_rx; //SIM
+//wire [7:0] ext_uart_rx; //SIM
 reg  [7:0] ext_uart_buffer, ext_uart_tx;
 wire ext_uart_ready;
 wire ext_uart_clear, ext_uart_busy;
@@ -352,7 +352,7 @@ always @ (posedge clk_20M) begin
 end
 
 //simuse
-/*
+
 reg rxd;
 reg [7:0] ext_uart_rx;
 cpld_model cpld(
@@ -378,7 +378,7 @@ initial begin
     rxd = 1;
     ext_uart_rx = 8'h00;
 end
-*/
+
 //RX_FIFO
 FIFO RX_FIFO(
     .rst(reset_of_clk10M),
@@ -391,9 +391,9 @@ FIFO RX_FIFO(
     .empty(RX_FIFO_empty),
     .full(RX_FIFO_full)
 );
-
+/*
 //uart
-async_receiver #(.ClkFrequency(59000000),.Baud(9600)) //接收模块,9600无检验位
+async_receiver #(.ClkFrequency(55000000),.Baud(9600)) //接收模块,9600无检验位
     ext_uart_r(
         .clk(clk_20M),                       //外部时钟信号
         .RxD(rxd),                           //外部串行信号输入
@@ -401,7 +401,7 @@ async_receiver #(.ClkFrequency(59000000),.Baud(9600)) //接收模块,9600无检�
         .RxD_clear(ext_uart_clear),       //清除接收标志
         .RxD_data(ext_uart_rx)             //接收到的一字节数据
     );
-
+*/
 /*
 always @(*) begin //接收数据到ext_uart_buffer
     if (reset_of_clk10M) begin
@@ -437,7 +437,7 @@ FIFO TX_FIFO(
     .full(TX_FIFO_full)
 );
 
-async_transmitter #(.ClkFrequency(59000000),.Baud(9600)) //发送模块,9600无检验位
+async_transmitter #(.ClkFrequency(55000000),.Baud(9600)) //发送模块,9600无检验位
     ext_uart_t(
         .clk(clk_20M),                  //外部时钟信号
         .TxD(txd),                      //串行信号输出

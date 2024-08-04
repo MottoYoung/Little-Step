@@ -29,7 +29,7 @@ wire inst_blt;
 wire ID_br_taken;
 
 //variables definition
-reg [31:0] IF_pc;
+(*mark_debug="true"*)reg [31:0] IF_pc;
 wire [31:0] IF_nextpc;
 wire [31:0] IF_seq_pc;
 wire IF_br_taken;

@@ -45,6 +45,8 @@ module EX_stage(
     wire [31:0] alu_src1;
     wire [31:0] alu_src2;
     wire [31:0] alu_result;
+    wire is_sel_state;
+    wire is_sel_data;
     assign fw_alu_result=alu_result;
     assign EX_ready_go=1'b1;
     assign EX_allow_in= !EX_valid || (EX_ready_go&&MEM_allow_in);
@@ -106,6 +108,8 @@ module EX_stage(
         .alu_op(EX_alu_op),
         .alu_result(alu_result)
     );
+    assign is_sel_state=data_sram_addr==32'hbfd003fc;
+    assign is_sel_data=data_sram_addr==32'hbfd003f8;
     assign alu_src1 = EX_src1_is_pc? EX_pc: EX_rj_value;
     assign alu_src2 = EX_src2_is_imm? EX_imm: (EX_inst_bl?32'h4:EX_rkd_value);
     assign EX_load_store= EX_res_from_mem | EX_mem_we;
